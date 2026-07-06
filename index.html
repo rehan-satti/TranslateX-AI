@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TranslateX AI – Translate Instantly Into 100+ Languages</title>
+  <meta name="description" content="Fast, secure, AI-powered translation with voice, history, AI writing assistance, and premium user experience." />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+  <script>
+    // Suppress Tailwind CDN production warning (CDN is intentional for this app)
+    if (typeof console !== 'undefined') {
+      const _warn = console.warn.bind(console);
+      console.warn = (...args) => {
+        if (args[0] && typeof args[0] === 'string' && args[0].includes('tailwindcss')) return;
+        _warn(...args);
+      };
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="theme-dark font-inter antialiased min-h-screen overflow-x-hidden">
+
+  <!-- ============================================================ -->
+  <!-- PAGE LOADING SCREEN -->
+  <!-- ============================================================ -->
+  <div id="pageLoader" class="page-loader fixed inset-0 z-[99999] flex flex-col items-center justify-center" aria-label="Loading application" role="status">
+    <div class="loader-content flex flex-col items-center gap-5">
+      <!-- Logo mark -->
+      <div class="loader-logo w-16 h-16 rounded-2xl flex items-center justify-center shadow-2xl">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z" fill="currentColor"/>
+        </svg>
+      </div>
+      <!-- Brand name -->
+      <div class="text-center">
+        <div class="loader-brand text-xl font-bold tracking-tight">TranslateX <span class="loader-ai-badge">AI</span></div>
+        <div class="loader-sub text-xs mt-1">100+ Languages · Instant Translation</div>
+      </div>
+      <!-- Animated dots bar -->
+      <div class="loader-bar-wrap">
+        <div class="loader-bar"></div>
+      </div>
+      <!-- Dots -->
+      <div class="loader-dots flex items-center gap-2">
+        <span class="loader-dot"></span>
+        <span class="loader-dot"></span>
+        <span class="loader-dot"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div id="toastContainer" class="fixed top-6 right-6 z-[9999] flex flex-col gap-3 pointer-events-none" aria-live="polite"></div>
+
+  <!-- Sidebar Overlay (mobile) -->
+  <div id="sidebarOverlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden lg:hidden" onclick="closeSidebar()"></div>
+
+  <!-- APP SHELL -->
+  <div class="app-shell flex min-h-screen">
+
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar w-72 flex-shrink-0 flex flex-col fixed top-0 left-0 h-full z-50 transition-transform duration-300" role="navigation" aria-label="Main navigation">
+      <!-- Logo -->
+      <div class="sidebar-logo px-6 pt-6 pb-4 flex items-center gap-3">
+        <div class="logo-icon w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z" fill="currentColor"/>
+          </svg>
+        </div>
+        <div>
+          <div class="text-lg font-bold tracking-tight sidebar-logo-text">TranslateX <span class="ai-badge">AI</span></div>
+          <div class="text-xs sidebar-logo-sub">100+ Languages</div>
+        </div>
+        <button class="ml-auto lg:hidden sidebar-close-btn p-1.5 rounded-lg" onclick="closeSidebar()" aria-label="Close sidebar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+
+      <!-- Nav Items -->
+      <nav class="flex-1 px-3 py-2 overflow-y-auto scrollbar-thin">
+        <div class="nav-section-label px-3 mb-2 text-xs font-semibold uppercase tracking-wider">Main</div>
+        <ul class="space-y-0.5" role="list">
+          <li><button class="nav-item active w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" onclick="showSection('translator')" data-section="translator" aria-current="page">
+            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z" fill="currentColor"/></svg></span>
+            Translator
+          </button></li>
+          <li><button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" onclick="showSection('history')" data-section="history">
+            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H7l5-5V6h2v6.5l-3 3.5zm1-7l-1 1V7h2v2h-1z" fill="currentColor"/></svg></span>
+            Translation History
+            <span id="historyBadge" class="nav-badge ml-auto hidden text-xs px-2 py-0.5 rounded-full font-semibold"></span>
+          </button></li>
+          <li><button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" onclick="showSection('favorites')" data-section="favorites">
+            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="currentColor"/></svg></span>
+            Favorites
+          </button></li>
+        </ul>
+
+        <div class="nav-section-label px-3 mt-5 mb-2 text-xs font-semibold uppercase tracking-wider">Tools</div>
+        <ul class="space-y-0.5" role="list">
+          <li><button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" onclick="showSection('ai-writing')" data-section="ai-writing">
+            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/></svg></span>
+            AI Writing
+            <span class="nav-tag ml-auto text-xs px-2 py-0.5 rounded-full font-semibold">AI</span>
+          </button></li>
+          <li><button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" onclick="showSection('voice')" data-section="voice">
+            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" fill="currentColor"/></svg></span>
+            Voice Translation
+          </button></li>
+          <li><button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all opacity-70 cursor-not-allowed" data-section="image" title="Coming Soon">
+            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" fill="currentColor"/></svg></span>
+            Image Translation
+            <span class="nav-soon ml-auto text-xs px-2 py-0.5 rounded-full">Soon</span>
+          </button></li>
+          <li><button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all opacity-70 cursor-not-allowed" data-section="document" title="Coming Soon">
+            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" fill="currentColor"/></svg></span>
+            Document Translation
+            <span class="nav-soon ml-auto text-xs px-2 py-0.5 rounded-full">Soon</span>
+          </button></li>
+          <li><button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" onclick="showSection('dictionary')" data-section="dictionary">
+            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 14H8v-2h8v2zm0-4H8v-2h8v2zm0-4H8V6h8v2z" fill="currentColor"/></svg></span>
+            Dictionary
+          </button></li>
+          <li><button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" onclick="showSection('grammar')" data-section="grammar">
+            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12.45 16h2.09L9.43 3H7.57L2.46 16h2.09l1.12-3h5.64l1.14 3zm-6.02-5L8.5 5.48 10.57 11H6.43zm15.16.59c-1.09-.37-1.32-.59-1.32-1.09 0-.43.32-.76.97-.76.52 0 1.04.21 1.55.62l.59-.91c-.54-.47-1.23-.74-2.07-.74-1.23 0-2.09.8-2.09 1.93 0 1.03.61 1.58 1.92 2.01 1.07.35 1.38.63 1.38 1.15 0 .52-.47.89-1.11.89-.66 0-1.22-.25-1.79-.75l-.63.9c.68.58 1.55.89 2.41.89 1.33 0 2.21-.76 2.21-1.99.02-.97-.54-1.56-1.02-1.15z" fill="currentColor"/></svg></span>
+            Grammar Checker
+          </button></li>
+        </ul>
+
+        <div class="nav-section-label px-3 mt-5 mb-2 text-xs font-semibold uppercase tracking-wider">Account</div>
+        <ul class="space-y-0.5" role="list">
+          <li><button class="nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" onclick="showSection('settings')" data-section="settings">
+            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" fill="currentColor"/></svg></span>
+            Settings
+          </button></li>
+          <li><button class="nav-item premium-nav-item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" onclick="showSection('premium')" data-section="premium">
+            <span class="nav-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 2.18l7 3.12V11c0 4.52-3.06 8.76-7 9.93-3.94-1.17-7-5.41-7-9.93V6.3l7-3.12z" fill="currentColor"/></svg></span>
+            Premium Plan
+            <span class="nav-tag ml-auto text-xs px-2 py-0.5 rounded-full font-semibold">PRO</span>
+          </button></li>
+        </ul>
+      </nav>
+
+      <!-- Dark Mode Toggle -->
+      <div class="sidebar-footer px-4 py-4 border-t sidebar-border">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2.5">
+            <div class="w-8 h-8 rounded-full avatar-gradient flex items-center justify-center text-sm font-bold text-white">TX</div>
+            <div>
+              <div class="text-sm font-semibold sidebar-user-name">TranslateX User</div>
+              <div class="text-xs sidebar-user-email">Free Plan</div>
+            </div>
+          </div>
+          <button id="darkModeToggle" onclick="toggleDarkMode()" class="dark-toggle w-12 h-6 rounded-full flex-shrink-0 relative transition-all" aria-label="Toggle dark mode" role="switch" aria-checked="true">
+            <span class="dark-toggle-thumb absolute top-0.5 w-5 h-5 rounded-full flex items-center justify-center transition-all duration-300 left-0.5">
+              <svg id="moonIcon" width="12" height="12" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/></svg>
+              <svg id="sunIcon" width="12" height="12" viewBox="0 0 24 24" fill="none" class="hidden"><circle cx="12" cy="12" r="5" fill="currentColor"/><line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </span>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content flex-1 lg:ml-72 flex flex-col min-h-screen">
+
+      <!-- Top Bar -->
+      <header class="top-bar sticky top-0 z-30 flex items-center justify-between px-4 md:px-6 py-3 backdrop-blur-xl border-b">
+        <div class="flex items-center gap-3">
+          <button class="lg:hidden hamburger-btn p-2 rounded-xl transition-all" onclick="openSidebar()" aria-label="Open menu">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z" fill="currentColor"/></svg>
+          </button>
+          <div class="topbar-title text-base font-semibold" id="topbarTitle">Translator</div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button class="topbar-btn px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all" onclick="showSection('premium')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="currentColor"/></svg>
+            Upgrade
+          </button>
+          <button class="topbar-icon-btn p-2 rounded-xl transition-all relative" onclick="showSection('history')" aria-label="History">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H7l5-5V6h2v6.5l-3 3.5zm1-7l-1 1V7h2v2h-1z" fill="currentColor"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: TRANSLATOR -->
+      <!-- ============================================================ -->
+      <section id="section-translator" class="app-section active px-4 md:px-6 py-6 flex-1 flex flex-col gap-6">
+
+        <!-- Hero Banner -->
+        <div class="hero-banner relative overflow-hidden rounded-2xl p-6 md:p-8">
+          <div class="hero-glow-1 absolute -top-10 -left-10 w-48 h-48 rounded-full blur-3xl opacity-30"></div>
+          <div class="hero-glow-2 absolute -bottom-10 -right-10 w-64 h-64 rounded-full blur-3xl opacity-20"></div>
+          <div class="relative z-10 flex flex-col md:flex-row md:items-center gap-4">
+            <div class="flex-1">
+              <div class="flex items-center gap-2 mb-2">
+                <span class="hero-tag text-xs font-semibold px-3 py-1 rounded-full">✦ AI Powered</span>
+              </div>
+              <h1 class="hero-title text-2xl md:text-3xl font-bold mb-1">Translate Into <span class="hero-highlight">100+ Languages</span></h1>
+              <p class="hero-sub text-sm opacity-75">Fast, secure, AI-powered translation with voice, history, and premium experience.</p>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="stat-card text-center px-4 py-3 rounded-xl">
+                <div class="stat-num text-xl font-bold">100+</div>
+                <div class="stat-label text-xs opacity-70">Languages</div>
+              </div>
+              <div class="stat-card text-center px-4 py-3 rounded-xl">
+                <div class="stat-num text-xl font-bold">Fast</div>
+                <div class="stat-label text-xs opacity-70">Instant</div>
+              </div>
+              <div class="stat-card text-center px-4 py-3 rounded-xl">
+                <div class="stat-num text-xl font-bold">Free</div>
+                <div class="stat-label text-xs opacity-70">API</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Language Bar -->
+        <div class="lang-bar flex items-center gap-2 md:gap-3">
+          <!-- Source Language -->
+          <div class="lang-selector-wrap flex-1 relative">
+            <button id="sourceLangBtn" class="lang-selector w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" onclick="openLangDropdown('source')" aria-label="Select source language" aria-haspopup="listbox">
+              <span id="sourceLangFlag" class="text-lg">🌐</span>
+              <span id="sourceLangName" class="flex-1 text-left truncate">Auto Detect</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="flex-shrink-0 opacity-60"><path d="M7 10l5 5 5-5H7z" fill="currentColor"/></svg>
+            </button>
+          </div>
+          <!-- Swap Button -->
+          <button id="swapBtn" onclick="swapLanguages()" class="swap-btn flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center transition-all" aria-label="Swap languages" title="Swap languages">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z" fill="currentColor"/></svg>
+          </button>
+          <!-- Target Language -->
+          <div class="lang-selector-wrap flex-1 relative">
+            <button id="targetLangBtn" class="lang-selector w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm font-medium transition-all" onclick="openLangDropdown('target')" aria-label="Select target language" aria-haspopup="listbox">
+              <span id="targetLangFlag" class="text-lg">🇬🇧</span>
+              <span id="targetLangName" class="flex-1 text-left truncate">English</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" class="flex-shrink-0 opacity-60"><path d="M7 10l5 5 5-5H7z" fill="currentColor"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Language Dropdown (shared) -->
+        <div id="langDropdown" class="lang-dropdown hidden fixed z-[200] w-80 rounded-2xl shadow-2xl overflow-hidden" role="listbox" aria-label="Language selection">
+          <div class="lang-dropdown-header p-3 border-b lang-dropdown-border">
+            <div class="lang-search-wrap relative">
+              <svg class="lang-search-icon absolute left-3 top-1/2 -translate-y-1/2 opacity-50" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              <input id="langSearchInput" type="text" placeholder="Search language…" class="lang-search w-full pl-9 pr-3 py-2 rounded-lg text-sm outline-none" oninput="filterLanguages(this.value)" aria-label="Search languages" autocomplete="off" />
+            </div>
+          </div>
+          <div class="lang-dropdown-body overflow-y-auto max-h-72 p-2" id="langDropdownList" role="listbox"></div>
+        </div>
+
+        <!-- Translator Panels -->
+        <div class="translator-grid grid grid-cols-1 md:grid-cols-2 gap-4">
+
+          <!-- Source Panel -->
+          <div class="translator-panel source-panel rounded-2xl flex flex-col" id="sourcePanelDrop">
+            <div class="panel-header flex items-center justify-between px-4 pt-4 pb-2">
+              <span class="panel-label text-xs font-semibold uppercase tracking-wider opacity-60">Source Text</span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="pasteText()" class="panel-action-btn p-1.5 rounded-lg text-xs flex items-center gap-1 transition-all" title="Paste" aria-label="Paste from clipboard">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 2h-4.18C14.4.84 13.3 0 12 0c-1.3 0-2.4.84-2.82 2H5c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-7 0c.55 0 1 .45 1 1s-.45 1-1 1-1-.45-1-1 .45-1 1-1zm7 18H5V4h2v3h10V4h2v16z" fill="currentColor"/></svg>
+                  Paste
+                </button>
+                <button onclick="uploadTextFile()" class="panel-action-btn p-1.5 rounded-lg text-xs flex items-center gap-1 transition-all" title="Upload file" aria-label="Upload text file">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M9 16h6v-6h4l-7-7-7 7h4v6zm-4 2h14v2H5v-2z" fill="currentColor"/></svg>
+                  File
+                </button>
+                <input type="file" id="fileInput" accept=".txt,.md" class="hidden" onchange="handleFileUpload(event)" />
+              </div>
+            </div>
+            <div class="relative flex-1 px-4 pb-2">
+              <textarea
+                id="sourceText"
+                class="source-textarea w-full h-48 resize-none bg-transparent outline-none text-sm leading-relaxed"
+                placeholder="Type or paste text here… or drag & drop a file"
+                maxlength="5000"
+                aria-label="Source text input"
+                oninput="handleSourceInput()"
+                ondragover="event.preventDefault(); this.closest('.source-panel').classList.add('drag-over')"
+                ondragleave="this.closest('.source-panel').classList.remove('drag-over')"
+                ondrop="handleDrop(event)"
+              ></textarea>
+              <div id="charLimitWarning" class="hidden text-xs text-red-400 mt-1">Character limit reached (5000)</div>
+            </div>
+            <div class="panel-footer flex items-center justify-between px-4 pb-3 pt-1">
+              <div class="flex items-center gap-3 text-xs opacity-50">
+                <span id="charCount">0</span>/<span>5000</span>
+                <span>•</span>
+                <span id="wordCount">0</span> words
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button onclick="startVoiceInput()" id="voiceInputBtn" class="panel-action-btn p-1.5 rounded-lg transition-all" title="Voice input" aria-label="Start voice input">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" fill="currentColor"/></svg>
+                </button>
+                <button onclick="clearSourceText()" class="panel-action-btn p-1.5 rounded-lg transition-all" title="Clear" aria-label="Clear source text">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Output Panel -->
+          <div class="translator-panel output-panel rounded-2xl flex flex-col">
+            <div class="panel-header flex items-center justify-between px-4 pt-4 pb-2">
+              <span class="panel-label text-xs font-semibold uppercase tracking-wider opacity-60">Translation</span>
+              <div class="flex items-center gap-1.5">
+                <button onclick="downloadTxt()" class="panel-action-btn p-1.5 rounded-lg text-xs flex items-center gap-1 transition-all" title="Download TXT" aria-label="Download as TXT">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/></svg>
+                  TXT
+                </button>
+                <button onclick="downloadPdf()" class="panel-action-btn p-1.5 rounded-lg text-xs flex items-center gap-1 transition-all" title="Download PDF" aria-label="Download as PDF">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M20 2H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8.5 7.5c0 .83-.67 1.5-1.5 1.5H9v2H7.5V7H10c.83 0 1.5.67 1.5 1.5v1zm5 2c0 .83-.67 1.5-1.5 1.5h-2.5V7H15c.83 0 1.5.67 1.5 1.5v3zm4-3H19v1h1.5V11H19v2h-1.5V7h3v1.5zM9 9.5h1v-1H9v1zM4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm10 5.5h1v-3h-1v3z" fill="currentColor"/></svg>
+                  PDF
+                </button>
+              </div>
+            </div>
+            <div class="relative flex-1 px-4 pb-2 min-h-[12rem]">
+              <!-- Skeleton loader -->
+              <div id="translateSkeleton" class="hidden space-y-2 pt-2">
+                <div class="skeleton-line h-4 rounded-lg w-full"></div>
+                <div class="skeleton-line h-4 rounded-lg w-5/6"></div>
+                <div class="skeleton-line h-4 rounded-lg w-4/6"></div>
+                <div class="skeleton-line h-4 rounded-lg w-3/4"></div>
+              </div>
+              <div id="translatedText" class="translated-text text-sm leading-relaxed h-48 overflow-y-auto pt-2 whitespace-pre-wrap" aria-live="polite" aria-label="Translated text output"></div>
+              <div id="translatePlaceholder" class="translate-placeholder absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none text-sm">Translation will appear here</div>
+            </div>
+            <div class="panel-footer flex items-center justify-between px-4 pb-3 pt-1">
+              <div class="flex items-center gap-1.5">
+                <button onclick="speakTranslation()" id="speakBtn" class="panel-action-btn p-1.5 rounded-lg transition-all" title="Speak" aria-label="Speak translation">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z" fill="currentColor"/></svg>
+                </button>
+                <button onclick="stopSpeaking()" id="stopSpeakBtn" class="panel-action-btn p-1.5 rounded-lg transition-all hidden" title="Stop" aria-label="Stop speaking">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="6" y="6" width="12" height="12" fill="currentColor" rx="1"/></svg>
+                </button>
+                <button onclick="shareTranslation()" class="panel-action-btn p-1.5 rounded-lg transition-all" title="Share" aria-label="Share translation">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z" fill="currentColor"/></svg>
+                </button>
+                <button onclick="saveFavorite()" class="panel-action-btn p-1.5 rounded-lg transition-all" title="Save to favorites" aria-label="Save to favorites">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="currentColor"/></svg>
+                </button>
+              </div>
+              <button onclick="copyTranslation()" class="copy-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all" aria-label="Copy translation">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z" fill="currentColor"/></svg>
+                Copy
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Translate Button -->
+        <div class="flex justify-center">
+          <button id="translateBtn" onclick="translateText()" class="translate-btn px-10 py-3.5 rounded-2xl text-sm font-bold flex items-center gap-2.5 transition-all shadow-lg" aria-label="Translate text">
+            <span id="translateBtnIcon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z" fill="currentColor"/></svg>
+            </span>
+            <span id="translateBtnText">Translate</span>
+          </button>
+        </div>
+
+        <!-- TTS Controls (shown when speaking) -->
+        <div id="ttsControls" class="hidden tts-panel rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-semibold">Text-to-Speech Controls</span>
+            <button onclick="closeTtsControls()" class="panel-action-btn p-1 rounded-lg transition-all">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z" fill="currentColor"/></svg>
+            </button>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="text-xs opacity-60 mb-1 block">Speed</label>
+              <input type="range" id="ttsSpeed" min="0.5" max="2" step="0.1" value="1" class="tts-slider w-full" oninput="updateTtsSpeed(this.value)" />
+              <div class="flex justify-between text-xs opacity-40 mt-1"><span>0.5×</span><span id="ttsSpeedVal">1.0×</span><span>2×</span></div>
+            </div>
+            <div>
+              <label class="text-xs opacity-60 mb-1 block">Pitch</label>
+              <input type="range" id="ttsPitch" min="0" max="2" step="0.1" value="1" class="tts-slider w-full" oninput="updateTtsPitch(this.value)" />
+              <div class="flex justify-between text-xs opacity-40 mt-1"><span>Low</span><span id="ttsPitchVal">1.0</span><span>High</span></div>
+            </div>
+            <div>
+              <label class="text-xs opacity-60 mb-1 block">Volume</label>
+              <input type="range" id="ttsVolume" min="0" max="1" step="0.05" value="1" class="tts-slider w-full" oninput="updateTtsVolume(this.value)" />
+              <div class="flex justify-between text-xs opacity-40 mt-1"><span>0%</span><span id="ttsVolumeVal">100%</span><span>100%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Popular Languages -->
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-sm font-semibold">Popular Languages</span>
+          </div>
+          <div class="flex flex-wrap gap-2" id="popularLangs"></div>
+        </div>
+
+        <!-- Features Cards -->
+        <div>
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-sm font-semibold">Why TranslateX AI?</span>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div class="feature-card rounded-xl p-4 text-center transition-all cursor-default">
+              <div class="feature-icon w-10 h-10 rounded-xl mx-auto mb-3 flex items-center justify-center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" fill="currentColor"/></svg>
+              </div>
+              <div class="text-sm font-semibold mb-1">AI Powered</div>
+              <div class="text-xs opacity-60">Neural translation engine</div>
+            </div>
+            <div class="feature-card rounded-xl p-4 text-center transition-all cursor-default">
+              <div class="feature-icon w-10 h-10 rounded-xl mx-auto mb-3 flex items-center justify-center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.9 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.35.16-2h4.68c.09.65.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.65-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z" fill="currentColor"/></svg>
+              </div>
+              <div class="text-sm font-semibold mb-1">100+ Languages</div>
+              <div class="text-xs opacity-60">Global coverage</div>
+            </div>
+            <div class="feature-card rounded-xl p-4 text-center transition-all cursor-default">
+              <div class="feature-icon w-10 h-10 rounded-xl mx-auto mb-3 flex items-center justify-center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" fill="currentColor"/></svg>
+              </div>
+              <div class="text-sm font-semibold mb-1">Voice Support</div>
+              <div class="text-xs opacity-60">Speak & listen</div>
+            </div>
+            <div class="feature-card rounded-xl p-4 text-center transition-all cursor-default">
+              <div class="feature-icon w-10 h-10 rounded-xl mx-auto mb-3 flex items-center justify-center">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="currentColor"/></svg>
+              </div>
+              <div class="text-sm font-semibold mb-1">Secure</div>
+              <div class="text-xs opacity-60">Privacy first</div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <!-- END TRANSLATOR SECTION -->
+
+      <!-- ============================================================ -->
+      <!-- SECTION: HISTORY -->
+      <!-- ============================================================ -->
+      <section id="section-history" class="app-section hidden px-4 md:px-6 py-6 flex-1 flex flex-col gap-5">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-xl font-bold">Translation History</h2>
+            <p class="text-sm opacity-60 mt-0.5">All your past translations stored locally</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="search-wrap relative flex-1 md:w-64">
+              <svg class="absolute left-3 top-1/2 -translate-y-1/2 opacity-40" width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              <input type="text" id="historySearch" placeholder="Search history…" class="search-input w-full pl-9 pr-3 py-2 rounded-xl text-sm outline-none" oninput="filterHistory(this.value)" aria-label="Search history" />
+            </div>
+            <button onclick="clearAllHistory()" class="danger-btn px-3 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5" aria-label="Clear all history">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg>
+              Clear All
+            </button>
+          </div>
+        </div>
+        <div id="historyList" class="flex flex-col gap-3"></div>
+        <div id="historyEmpty" class="hidden flex-col items-center justify-center py-20 text-center">
+          <div class="empty-icon w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="opacity-40"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H7l5-5V6h2v6.5l-3 3.5z" fill="currentColor"/></svg>
+          </div>
+          <p class="text-sm opacity-50">No history yet. Start translating!</p>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: FAVORITES -->
+      <!-- ============================================================ -->
+      <section id="section-favorites" class="app-section hidden px-4 md:px-6 py-6 flex-1 flex flex-col gap-5">
+        <div>
+          <h2 class="text-xl font-bold">Favorites</h2>
+          <p class="text-sm opacity-60 mt-0.5">Saved translations you love</p>
+        </div>
+        <div id="favoritesList" class="flex flex-col gap-3"></div>
+        <div id="favoritesEmpty" class="hidden flex-col items-center justify-center py-20 text-center">
+          <div class="empty-icon w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="opacity-40"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" fill="currentColor"/></svg>
+          </div>
+          <p class="text-sm opacity-50">No favorites yet. Save a translation to see it here!</p>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: AI WRITING -->
+      <!-- ============================================================ -->
+      <section id="section-ai-writing" class="app-section hidden px-4 md:px-6 py-6 flex-1 flex flex-col gap-5">
+        <div>
+          <h2 class="text-xl font-bold">AI Writing Tools</h2>
+          <p class="text-sm opacity-60 mt-0.5">Enhance and transform your text with AI assistance</p>
+        </div>
+        <div class="ai-textarea-wrap rounded-2xl p-4">
+          <textarea id="aiWritingInput" class="w-full h-32 resize-none bg-transparent outline-none text-sm leading-relaxed" placeholder="Paste or type your text here to use AI writing tools…" aria-label="AI writing input"></textarea>
+        </div>
+        <div id="aiWritingOutput" class="hidden ai-output-wrap rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold opacity-60 uppercase tracking-wider">AI Result</span>
+            <button onclick="copyAiOutput()" class="copy-btn px-3 py-1 rounded-lg text-xs font-semibold transition-all">Copy</button>
+          </div>
+          <div id="aiOutputText" class="text-sm leading-relaxed whitespace-pre-wrap"></div>
+        </div>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <button onclick="applyAiTool('rewrite')" class="ai-tool-card rounded-xl p-4 text-left transition-all">
+            <div class="ai-tool-icon w-9 h-9 rounded-lg mb-3 flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6 0 1.01-.25 1.97-.7 2.8l1.46 1.46C19.54 15.03 20 13.57 20 12c0-4.42-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6 0-1.01.25-1.97.7-2.8L5.24 7.74C4.46 8.97 4 10.43 4 12c0 4.42 3.58 8 8 8v3l4-4-4-4v3z" fill="currentColor"/></svg>
+            </div>
+            <div class="text-sm font-semibold mb-1">Rewrite</div>
+            <div class="text-xs opacity-60">Rephrase while keeping meaning</div>
+          </button>
+          <button onclick="applyAiTool('grammar')" class="ai-tool-card rounded-xl p-4 text-left transition-all">
+            <div class="ai-tool-icon w-9 h-9 rounded-lg mb-3 flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12.45 16h2.09L9.43 3H7.57L2.46 16h2.09l1.12-3h5.64l1.14 3zm-6.02-5L8.5 5.48 10.57 11H6.43z" fill="currentColor"/></svg>
+            </div>
+            <div class="text-sm font-semibold mb-1">Fix Grammar</div>
+            <div class="text-xs opacity-60">Correct grammar & spelling</div>
+          </button>
+          <button onclick="applyAiTool('professional')" class="ai-tool-card rounded-xl p-4 text-left transition-all">
+            <div class="ai-tool-icon w-9 h-9 rounded-lg mb-3 flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M20 6h-2.18c.07-.44.18-.88.18-1.34C18 2.54 16.02.5 13.5.5c-1.5 0-3 .7-4 1.84l-.5.54-.5-.54C7.5 1.2 6 .5 4.5.5 1.98.5 0 2.54 0 5.16c0 2.79 2.18 5.23 4.87 7.55L12 19l7.13-6.29C21.82 10.39 24 7.95 24 5.16 24 2.54 22.02.5 19.5.5z" fill="currentColor"/></svg>
+            </div>
+            <div class="text-sm font-semibold mb-1">Professional</div>
+            <div class="text-xs opacity-60">Business & formal tone</div>
+          </button>
+          <button onclick="applyAiTool('friendly')" class="ai-tool-card rounded-xl p-4 text-left transition-all">
+            <div class="ai-tool-icon w-9 h-9 rounded-lg mb-3 flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z" fill="currentColor"/></svg>
+            </div>
+            <div class="text-sm font-semibold mb-1">Friendly</div>
+            <div class="text-xs opacity-60">Casual & warm tone</div>
+          </button>
+          <button onclick="applyAiTool('formal')" class="ai-tool-card rounded-xl p-4 text-left transition-all">
+            <div class="ai-tool-icon w-9 h-9 rounded-lg mb-3 flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z" fill="currentColor"/></svg>
+            </div>
+            <div class="text-sm font-semibold mb-1">Formal Tone</div>
+            <div class="text-xs opacity-60">Official & structured</div>
+          </button>
+          <button onclick="applyAiTool('academic')" class="ai-tool-card rounded-xl p-4 text-left transition-all">
+            <div class="ai-tool-icon w-9 h-9 rounded-lg mb-3 flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82zM12 3L1 9l11 6 9-4.91V17h2V9L12 3z" fill="currentColor"/></svg>
+            </div>
+            <div class="text-sm font-semibold mb-1">Academic</div>
+            <div class="text-xs opacity-60">Scholarly style</div>
+          </button>
+          <button onclick="applyAiTool('shorten')" class="ai-tool-card rounded-xl p-4 text-left transition-all">
+            <div class="ai-tool-icon w-9 h-9 rounded-lg mb-3 flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M10 18h4v-2h-4v2zM3 6v2h18V6H3zm3 7h12v-2H6v2z" fill="currentColor"/></svg>
+            </div>
+            <div class="text-sm font-semibold mb-1">Shorten</div>
+            <div class="text-xs opacity-60">Make it more concise</div>
+          </button>
+          <button onclick="applyAiTool('expand')" class="ai-tool-card rounded-xl p-4 text-left transition-all">
+            <div class="ai-tool-icon w-9 h-9 rounded-lg mb-3 flex items-center justify-center">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M3 3h8v2H5v4H3V3zm13 0h5v6h-2V5h-3V3zM3 13h2v4h4v2H3v-6zm16 4h-4v2h6v-6h-2v4z" fill="currentColor"/></svg>
+            </div>
+            <div class="text-sm font-semibold mb-1">Expand</div>
+            <div class="text-xs opacity-60">Add more detail</div>
+          </button>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: VOICE TRANSLATION -->
+      <!-- ============================================================ -->
+      <section id="section-voice" class="app-section hidden px-4 md:px-6 py-6 flex-1 flex flex-col gap-5">
+        <div>
+          <h2 class="text-xl font-bold">Voice Translation</h2>
+          <p class="text-sm opacity-60 mt-0.5">Speak to translate in real-time</p>
+        </div>
+        <div class="voice-panel rounded-2xl p-6 flex flex-col items-center justify-center min-h-[24rem]">
+          <div id="voiceMicBtn" onclick="startVoiceTranslation()" class="voice-mic-btn w-24 h-24 rounded-full flex items-center justify-center mb-6 cursor-pointer transition-all">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm-1-9c0-.55.45-1 1-1s1 .45 1 1v6c0 .55-.45 1-1 1s-1-.45-1-1V5zm6 6c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z" fill="currentColor"/></svg>
+          </div>
+          <div id="voiceStatus" class="text-sm opacity-60 text-center mb-2">Click to start voice input</div>
+          <div id="voiceTranscript" class="voice-transcript text-center text-lg font-medium mb-4 hidden"></div>
+          <div id="voiceTranslationResult" class="voice-result text-center text-base opacity-75 hidden"></div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: DICTIONARY -->
+      <!-- ============================================================ -->
+      <section id="section-dictionary" class="app-section hidden px-4 md:px-6 py-6 flex-1 flex flex-col gap-5">
+        <div>
+          <h2 class="text-xl font-bold">Dictionary</h2>
+          <p class="text-sm opacity-60 mt-0.5">Look up word meanings, synonyms, and examples</p>
+        </div>
+        <div class="search-wrap-large relative">
+          <svg class="absolute left-4 top-1/2 -translate-y-1/2 opacity-40" width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input type="text" id="dictionaryInput" placeholder="Enter a word to search…" class="search-input-large w-full pl-12 pr-4 py-3.5 rounded-xl text-base outline-none" onkeypress="if(event.key==='Enter') searchDictionary()" aria-label="Dictionary search" />
+          <button onclick="searchDictionary()" class="search-btn-abs absolute right-2 top-1/2 -translate-y-1/2 px-4 py-2 rounded-lg text-sm font-semibold transition-all">Search</button>
+        </div>
+        <div id="dictionaryResult" class="hidden dict-result-wrap rounded-2xl p-5">
+          <div id="dictWord" class="text-2xl font-bold mb-1"></div>
+          <div id="dictPronunciation" class="text-sm opacity-60 mb-4"></div>
+          <div id="dictMeaning" class="mb-4">
+            <div class="text-xs font-semibold opacity-60 uppercase tracking-wider mb-2">Meaning</div>
+            <div id="dictMeaningText" class="text-sm leading-relaxed"></div>
+          </div>
+          <div id="dictSynonyms" class="mb-4 hidden">
+            <div class="text-xs font-semibold opacity-60 uppercase tracking-wider mb-2">Synonyms</div>
+            <div id="dictSynonymsText" class="text-sm"></div>
+          </div>
+          <div id="dictAntonyms" class="hidden">
+            <div class="text-xs font-semibold opacity-60 uppercase tracking-wider mb-2">Antonyms</div>
+            <div id="dictAntonymsText" class="text-sm"></div>
+          </div>
+        </div>
+        <div id="dictionaryEmpty" class="flex flex-col items-center justify-center py-20 text-center">
+          <div class="empty-icon w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="opacity-40"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 14H8v-2h8v2zm0-4H8v-2h8v2zm0-4H8V6h8v2z" fill="currentColor"/></svg>
+          </div>
+          <p class="text-sm opacity-50">Search for any word to see its meaning, synonyms, and more</p>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: GRAMMAR CHECKER -->
+      <!-- ============================================================ -->
+      <section id="section-grammar" class="app-section hidden px-4 md:px-6 py-6 flex-1 flex flex-col gap-5">
+        <div>
+          <h2 class="text-xl font-bold">Grammar Checker</h2>
+          <p class="text-sm opacity-60 mt-0.5">Check and fix grammar, spelling, and punctuation</p>
+        </div>
+        <div class="grammar-textarea-wrap rounded-2xl p-4">
+          <textarea id="grammarInput" class="w-full h-40 resize-none bg-transparent outline-none text-sm leading-relaxed" placeholder="Paste or type your text here to check grammar…" aria-label="Grammar input"></textarea>
+        </div>
+        <button onclick="checkGrammar()" class="check-btn px-6 py-3 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 justify-center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/></svg>
+          Check Grammar
+        </button>
+        <div id="grammarResult" class="hidden grammar-result-wrap rounded-2xl p-5">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="grammar-icon w-10 h-10 rounded-xl flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" fill="currentColor"/></svg>
+            </div>
+            <div>
+              <div class="text-sm font-semibold">Grammar Analysis</div>
+              <div class="text-xs opacity-60" id="grammarStatus">All good! No issues found.</div>
+            </div>
+          </div>
+          <div id="grammarSuggestions" class="flex flex-col gap-2"></div>
+        </div>
+        <div id="grammarEmpty" class="flex flex-col items-center justify-center py-20 text-center">
+          <div class="empty-icon w-16 h-16 rounded-2xl mx-auto mb-4 flex items-center justify-center">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" class="opacity-40"><path d="M12.45 16h2.09L9.43 3H7.57L2.46 16h2.09l1.12-3h5.64l1.14 3z" fill="currentColor"/></svg>
+          </div>
+          <p class="text-sm opacity-50">Paste text above and click check to analyze grammar</p>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: SETTINGS -->
+      <!-- ============================================================ -->
+      <section id="section-settings" class="app-section hidden px-4 md:px-6 py-6 flex-1 flex flex-col gap-5">
+        <div>
+          <h2 class="text-xl font-bold">Settings</h2>
+          <p class="text-sm opacity-60 mt-0.5">Customize your TranslateX experience</p>
+        </div>
+        
+        <div class="settings-section rounded-2xl p-5">
+          <div class="text-sm font-semibold mb-4">Appearance</div>
+          <div class="setting-item flex items-center justify-between py-3 border-b setting-border">
+            <div>
+              <div class="text-sm font-medium">Dark Mode</div>
+              <div class="text-xs opacity-60 mt-0.5">Toggle dark/light theme</div>
+            </div>
+            <button onclick="toggleDarkMode()" class="setting-toggle-btn px-4 py-2 rounded-lg text-xs font-semibold transition-all">Toggle</button>
+          </div>
+        </div>
+
+        <div class="settings-section rounded-2xl p-5">
+          <div class="text-sm font-semibold mb-4">Translation</div>
+          <div class="setting-item flex items-center justify-between py-3 border-b setting-border">
+            <div>
+              <div class="text-sm font-medium">Auto Translate</div>
+              <div class="text-xs opacity-60 mt-0.5">Translate as you type</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="autoTranslateToggle" onchange="toggleAutoTranslate(this.checked)" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="setting-item flex items-center justify-between py-3">
+            <div>
+              <div class="text-sm font-medium">Save History</div>
+              <div class="text-xs opacity-60 mt-0.5">Store translations locally</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="saveHistoryToggle" checked onchange="toggleSaveHistory(this.checked)" />
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="settings-section rounded-2xl p-5">
+          <div class="text-sm font-semibold mb-4">Data Management</div>
+          <button onclick="exportData()" class="setting-btn w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all mb-2">
+            <div class="flex items-center gap-3">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/></svg>
+              <div class="text-left">
+                <div class="font-medium">Export Data</div>
+                <div class="text-xs opacity-60">Download all your data</div>
+              </div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button onclick="clearAllData()" class="setting-btn danger-setting w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all">
+            <div class="flex items-center gap-3">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg>
+              <div class="text-left">
+                <div class="font-medium">Clear All Data</div>
+                <div class="text-xs opacity-60">Reset to default</div>
+              </div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M9 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- SECTION: PREMIUM -->
+      <!-- ============================================================ -->
+      <section id="section-premium" class="app-section hidden px-4 md:px-6 py-6 flex-1 flex flex-col gap-5">
+        <div class="premium-hero rounded-2xl p-8 text-center relative overflow-hidden">
+          <div class="premium-glow-1 absolute -top-10 -left-10 w-48 h-48 rounded-full blur-3xl opacity-20"></div>
+          <div class="premium-glow-2 absolute -bottom-10 -right-10 w-48 h-48 rounded-full blur-3xl opacity-20"></div>
+          <div class="relative z-10">
+            <div class="premium-badge inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold mb-4">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="currentColor"/></svg>
+              Premium Plan
+            </div>
+            <h2 class="text-3xl font-bold mb-2">Unlock Everything</h2>
+            <p class="opacity-70 mb-6 text-sm">Get unlimited translations, priority support, and exclusive AI tools</p>
+            <div class="premium-price text-5xl font-black mb-1">$9<span class="text-xl font-semibold">.99</span></div>
+            <div class="text-sm opacity-60 mb-6">per month · cancel anytime</div>
+            <button class="premium-cta-btn px-8 py-3.5 rounded-xl font-bold text-sm transition-all">Get Premium Now</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div class="premium-feature-card rounded-2xl p-5">
+            <div class="pf-icon w-10 h-10 rounded-xl mb-3 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z" fill="currentColor"/></svg>
+            </div>
+            <div class="text-sm font-semibold mb-1">Unlimited Translations</div>
+            <div class="text-xs opacity-60">No daily limits or restrictions</div>
+          </div>
+          <div class="premium-feature-card rounded-2xl p-5">
+            <div class="pf-icon w-10 h-10 rounded-xl mb-3 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/></svg>
+            </div>
+            <div class="text-sm font-semibold mb-1">Advanced AI Tools</div>
+            <div class="text-xs opacity-60">All 8 AI writing tools unlocked</div>
+          </div>
+          <div class="premium-feature-card rounded-2xl p-5">
+            <div class="pf-icon w-10 h-10 rounded-xl mb-3 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z" fill="currentColor"/></svg>
+            </div>
+            <div class="text-sm font-semibold mb-1">Image Translation</div>
+            <div class="text-xs opacity-60">Extract and translate from images</div>
+          </div>
+          <div class="premium-feature-card rounded-2xl p-5">
+            <div class="pf-icon w-10 h-10 rounded-xl mb-3 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm4 18H6V4h7v5h5v11z" fill="currentColor"/></svg>
+            </div>
+            <div class="text-sm font-semibold mb-1">Document Translation</div>
+            <div class="text-xs opacity-60">PDF, DOCX, TXT support</div>
+          </div>
+          <div class="premium-feature-card rounded-2xl p-5">
+            <div class="pf-icon w-10 h-10 rounded-xl mb-3 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z" fill="currentColor"/></svg>
+            </div>
+            <div class="text-sm font-semibold mb-1">Priority Support</div>
+            <div class="text-xs opacity-60">24/7 dedicated assistance</div>
+          </div>
+          <div class="premium-feature-card rounded-2xl p-5">
+            <div class="pf-icon w-10 h-10 rounded-xl mb-3 flex items-center justify-center">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z" fill="currentColor"/></svg>
+            </div>
+            <div class="text-sm font-semibold mb-1">API Access</div>
+            <div class="text-xs opacity-60">Integrate with your apps</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- FOOTER -->
+      <!-- ============================================================ -->
+      <footer class="app-footer mt-auto px-4 md:px-6 pt-5 pb-6 border-t">
+
+        <!-- Row 1: Brand + Badges -->
+        <div class="footer-row-1 flex flex-wrap items-center justify-between gap-y-3 gap-x-4 mb-4">
+          <!-- Brand -->
+          <div class="flex items-center gap-2.5 flex-shrink-0">
+            <div class="footer-logo-icon w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z" fill="currentColor"/></svg>
+            </div>
+            <div class="leading-tight">
+              <div class="footer-brand text-sm font-bold">TranslateX AI</div>
+              <div class="footer-copy text-xs mt-0.5">© 2026 All rights reserved</div>
+            </div>
+          </div>
+          <!-- Badges -->
+          <div class="flex items-center gap-2 flex-wrap">
+            <span class="footer-badge text-xs px-2.5 py-1 rounded-full font-medium">Free API</span>
+            <span class="footer-badge text-xs px-2.5 py-1 rounded-full font-medium">100+ Langs</span>
+            <span class="footer-badge-secure text-xs px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z" fill="currentColor"/></svg>
+              Secure
+            </span>
+          </div>
+        </div>
+
+        <!-- Row 2: Quick nav links -->
+        <div class="footer-nav flex flex-wrap items-center gap-x-1 gap-y-1">
+          <button onclick="showSection('translator')" class="footer-link text-xs px-2.5 py-1.5 rounded-lg transition-all">Translator</button>
+          <span class="footer-sep text-xs" aria-hidden="true">·</span>
+          <button onclick="showSection('history')" class="footer-link text-xs px-2.5 py-1.5 rounded-lg transition-all">History</button>
+          <span class="footer-sep text-xs" aria-hidden="true">·</span>
+          <button onclick="showSection('dictionary')" class="footer-link text-xs px-2.5 py-1.5 rounded-lg transition-all">Dictionary</button>
+          <span class="footer-sep text-xs" aria-hidden="true">·</span>
+          <button onclick="showSection('grammar')" class="footer-link text-xs px-2.5 py-1.5 rounded-lg transition-all">Grammar</button>
+          <span class="footer-sep text-xs" aria-hidden="true">·</span>
+          <button onclick="showSection('voice')" class="footer-link text-xs px-2.5 py-1.5 rounded-lg transition-all">Voice</button>
+          <span class="footer-sep text-xs" aria-hidden="true">·</span>
+          <button onclick="showSection('ai-writing')" class="footer-link text-xs px-2.5 py-1.5 rounded-lg transition-all">AI Writing</button>
+          <span class="footer-sep text-xs" aria-hidden="true">·</span>
+          <button onclick="showSection('settings')" class="footer-link text-xs px-2.5 py-1.5 rounded-lg transition-all">Settings</button>
+          <span class="footer-sep text-xs" aria-hidden="true">·</span>
+          <button onclick="showSection('premium')" class="footer-link footer-premium-link text-xs px-2.5 py-1.5 rounded-lg transition-all font-semibold">⭐ Premium</button>
+        </div>
+
+      </footer>
+
+    </main>
+  </div><!-- end app-shell -->
+
+  <script src="app.js"></script>
+  <script>
+    // Dismiss page loader once app is ready
+    (function () {
+      function hideLoader() {
+        var loader = document.getElementById('pageLoader');
+        if (!loader) return;
+        loader.classList.add('loader-hide');
+        setTimeout(function () { loader.style.display = 'none'; }, 600);
+      }
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () { setTimeout(hideLoader, 900); });
+      } else {
+        setTimeout(hideLoader, 900);
+      }
+    })();
+  </script>
+</body>
+</html>
